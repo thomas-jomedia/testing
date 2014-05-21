@@ -34,7 +34,7 @@ game:
 
 ### Old controller: ###
 
-We want to get rid of static method.
+We want to get rid of static method as they are not object oriented and hard to unit test.
 - old/controllers/game_controller.php
 
 ```php
