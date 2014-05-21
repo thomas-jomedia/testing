@@ -63,7 +63,7 @@ class GameController
     }
     public function view($id)
     {
-        $this->filter->getRestrictedIds();  // static method prevented
+        $this->filter->getRestrictedIds('games');  // static method prevented
         $title = 'lorem ipsum';
 		return array('id' => $id, 'title' => $title); // return variables to be accessible by the view
 	}
@@ -81,33 +81,61 @@ class BrowseManager
 {
 
     /**
-     * @deprecated use MemberArea/Content/Game/Filter.php instead
+     * @deprecated use MemberArea/Content/Filter.php instead
      */
-	public static function getRestrictedIds($media_type)
+	public static function getRestrictedIds($mediaType)
 	{
 	    // old code
 	}
 }
 ```
 
-### New managers: ###
+### New managers (service) ###
 Managers are now seen as services, try to find a meaningfull name. In this example I choose `Filter` class. It will contain domain and geo restricted logic.
 
 Ideally, refactor all methods, but it can take too much time; as a temporary solution and as to prevent code duplication, refer to the old method like so:
-- src/MemberArea/Content/Game/Filter.php
+- src/MemberArea/Content/Filter.php
 
 ```php
-namespace MemberArea\Content\Game;
+namespace MemberArea\Content;
 
 class Filter
 {
     /**
      * @return mixed
      */
-	public function getRestrictedIds()
+	public function getRestrictedIds($mediaType)
 	{
-		return \BrowseManager::getRestrictedIds('games'); // temporary solution
+		return \BrowseManager::getRestrictedIds($mediaType); // temporary solution
 	}
+}
+```
+
+### Add the new controller and service to the app ###
+
+
+- app-emedia-members-v2/MembersAreaApp.php
+
+```php
+use MemberArea\Content\Game\GameController;
+use MemberArea\Content\Filter;
+
+class MembersAreaApp extends \SimpleApp\Application\Application
+{
+    public function __construct($values = array())
+    {
+        $this['content.filter'] = $this->share(function() {
+            return new Filter();
+        });
+        $this->loadContentGame();
+    }
+    
+    private function loadContentGame()
+    {
+        $this['content.game.controller'] = $this->share(function (Application $application) {
+            return new GameController($application['content.filter']);
+        });
+    }
 }
 ```
 
