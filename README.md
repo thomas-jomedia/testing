@@ -101,9 +101,12 @@ namespace MemberArea\Content\Game;
 
 class Filter
 {
+    /**
+     * @return mixed
+     */
 	public function getRestrictedIds()
 	{
-		return BrowseManager::getRestrictedIds('games'); // temporary solution
+		return \BrowseManager::getRestrictedIds('games'); // temporary solution
 	}
 }
 ```
@@ -118,7 +121,7 @@ the variable {{ id }} has been made accessible by GameController.
 - app-emedia-members-v2/views/game/view.html.twig
 
 ```php
-{% extends 'layouts/default/layout.html.twig' %}
+{% extends 'layouts/default.html.twig' %}
 
 {% block content %}
 	the game id is: {{ id }}
